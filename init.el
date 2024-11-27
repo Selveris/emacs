@@ -18,7 +18,8 @@
       js-indent-level 4
       vue-html-tab-width 4
       css-indent-offset 2
-      c-basic-offset 4)
+      c-basic-offset 4
+      rust-indent-offset 2)
 
 ;Basic programming utilities
 (use-package magit
