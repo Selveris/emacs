@@ -91,6 +91,12 @@
   :custom
   (rustic-analyzer-command '("rustup" "run" "stable" "rust-analyzer")))
 
+;;; Java
+;;; https://github.com/yveszoundi/eglot-java
+(use-package eglot-java
+  :ensure t
+  :hook (java-mode . eglot-java-mode))
+
 ;;; Docker and yaml
 (use-package dockerfile-mode
   :ensure t)
