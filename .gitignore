@@ -1,4 +1,9 @@
+# packages
 elpa/*
+
+# generated files
 custom.el
 .lsp-session-*
-projects
+*-cache
+share
+url
