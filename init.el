@@ -52,7 +52,7 @@
               ("C-c e p" . flymake-goto-prev-error)
               ("C-c e r" . eglot-rename)
               ("C-c f" . eglot-code-action-quickfix))
-  :hook ((rustic-mode c-mode c++-mode typescript-mode vue-mode) . eglot-ensure)
+  :hook ((rustic-mode c-mode c++-mode typescript-mode vue-mode zig-mode) . eglot-ensure)
   :config
   ;(add-to-list 'project-vc-extra-root-markers "build.gradle")
   (customize-set-variable 'eglot-autoshutdown t)
@@ -64,11 +64,11 @@
   (add-to-list 'eglot-server-programs
                `((c-mode c++-mode) . ("clangd-15")))
   (add-to-list 'eglot-server-programs
-               `(vue-mode . ("vue-language-server" "--stdio" :initializationOptions ,(vue-eglot-init-options)))))
-
+               `(vue-mode . ("vue-language-server" "--stdio" :initializationOptions ,(vue-eglot-init-options))))
+  (add-to-list 'eglot-server-programs
+               `(zig-mode . ("zls"))))
 (use-package eldoc
   :ensure)
-
 (use-package company
   :ensure t
   :config
@@ -81,6 +81,8 @@
 			  ("C-c u" . 'undo-tree-undo)
 			  ("C-c r" . 'undo-tree-redo)))
 
+(use-package fish-mode
+  :ensure t)
 
 ;;; Rust
 (use-package rustic
@@ -97,6 +99,10 @@
 (use-package eglot-java
   :ensure t
   :hook (java-mode . eglot-java-mode))
+
+;;; Zig
+(use-package zig-mode
+  :ensure t)
 
 ;;; Docker and yaml
 (use-package dockerfile-mode
