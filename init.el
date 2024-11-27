@@ -21,6 +21,9 @@
       c-basic-offset 4)
 
 ;Basic programming utilities
+(use-package magit
+  :ensure t)
+
 (defun vue-eglot-init-options ()
     (let ((tsdk-path (expand-file-name
                       "lib"
