@@ -51,9 +51,9 @@
               ("C-c e p" . flymake-goto-prev-error)
               ("C-c e r" . eglot-rename)
               ("C-c f" . eglot-code-action-quickfix))
-  :hook ((rustic-mode c-mode c++-mode typescript-mode vue-mode java-mode) . eglot-ensure)
+  :hook ((rustic-mode c-mode c++-mode typescript-mode vue-mode) . eglot-ensure)
   :config
-  (add-to-list 'project-vc-extra-root-markers "build.gradle")
+  ;(add-to-list 'project-vc-extra-root-markers "build.gradle")
   (customize-set-variable 'eglot-autoshutdown t)
   (add-to-list 'eglot-server-programs
                `(rustic-mode . ("rust-analyzer" :initializationOptions
