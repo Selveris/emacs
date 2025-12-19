@@ -14,11 +14,11 @@
 			  indent-tabs-mode nil)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
-(setq typescript-indent-level 4
-      js-indent-level 4
-      vue-html-tab-width 4
+(setq typescript-indent-level 2
+      js-indent-level 2
+      vue-html-tab-width 2
       css-indent-offset 2
-      c-basic-offset 4
+      c-basic-offset 2
       rust-indent-offset 2)
 
 ;Basic programming utilities

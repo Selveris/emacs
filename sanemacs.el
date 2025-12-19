@@ -28,7 +28,8 @@
 ;;; Setup package.el
 (require 'package)
 (setq package-enable-at-startup nil)
-(add-to-list 'package-archives '("melpa" . "https://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/")
+             t)
 (package-initialize)
 
 ;;; Setup use-package
@@ -61,6 +62,40 @@
   (push-mark)
   (backward-word)
   (delete-region (point) (mark)))
+
+(defun comment-delete (arg)
+  "Delete the first comment on this line, if any.  Don't touch
+the kill ring.  With prefix ARG, delete comments on that many
+lines starting with this one."
+  (interactive "P")
+  (comment-normalize-vars)
+  (dotimes (_i (prefix-numeric-value arg))
+    (save-excursion
+      (beginning-of-line)
+      (let ((cs (comment-search-forward (line-end-position) t)))
+    (when cs
+      (goto-char cs)
+      (skip-syntax-backward " ")
+      (setq cs (point))
+      (comment-forward)
+      ;; (kill-region cs (if (bolp) (1- (point)) (point))) ; original
+      (delete-region cs (if (bolp) (1- (point)) (point)))  ; replace kill-region with delete-region
+      (indent-according-to-mode))))
+    (if arg (forward-line 1))))
+
+(defun comment-delete-dwim (beg end arg)
+  "Delete comments without touching the kill ring.  With active
+region, delete comments in region.  With prefix, delete comments
+in whole buffer.  With neither, delete comments on current line."
+  (interactive "r\nP")
+  (let ((lines (cond (arg
+                      (count-lines (point-min) (point-max)))
+                     ((region-active-p)
+                      (count-lines beg end)))))
+    (save-excursion
+      (when lines
+        (goto-char (if arg (point-min) beg)))
+      (comment-delete (or lines 1)))))
 
 ;;; Keybindings
 (global-set-key [mouse-3] 'mouse-popup-menubar-stuff)          ; Gives right-click a context menu
