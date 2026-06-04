@@ -1,5 +1,9 @@
 transient
 
+# emacs
+*~
+.#*
+
 # packages
 elpa/*
 
@@ -9,3 +13,6 @@ custom.el
 *-cache
 share
 url
+projects
+savehist
+recentf

@@ -1,129 +1,85 @@
-;;; Base Setup
-(load "~/.emacs.d/sanemacs.el")
+;;; Basic QOL
 
-;theme and display
-(use-package doom-themes
-  :ensure t
-  :config
-  (setq doom-themes-enable-bold t
-	doom-themes-enable-italic t)
-  (load-theme 'doom-nord t))
+;; Make native compilation silent.
+(when (native-comp-available-p)
+  (setq native-comp-async-report-warnings-errors 'silent))
 
-(setq-default column-number-mode t
-			  tab-width 4
-			  indent-tabs-mode nil)
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+;; better handling of long lines
+(global-so-long-mode 1)
 
-(setq typescript-indent-level 2
-      js-indent-level 2
-      vue-html-tab-width 2
-      css-indent-offset 2
-      c-basic-offset 2
-      rust-indent-offset 2)
+;;; Packages
 
-;Basic programming utilities
-(use-package magit
-  :ensure t)
+(setq package-archives
+      '(("gnu-elpa" . "https://elpa.gnu.org/packages/")
+        ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+        ("melpa" . "https://melpa.org/packages/")))
+;; Highest number gets priority (what is not mentioned has priority 0)
+(setq package-archive-priorities
+      '(("gnu-elpa" . 3)
+        ("melpa" . 2)
+        ("nongnu" . 1)))
 
-(defun vue-eglot-init-options ()
-    (let ((tsdk-path (expand-file-name
-                      "lib"
-                      (shell-command-to-string "npm list --global --parseable typescript | head -n1 | tr -d '\n'"))))
-      `(:typescript (:tsdk ,tsdk-path
-                           :languageFeatures (:completion
-                                              (:defaultTagNameCase "both"
-                                                                   :defaultAttrNameCase "kebabCase"
-                                                                   :getDocumentNameCasesRequest nil
-                                                                   :getDocumentSelectionRequest nil)
-                                              :diagnostics
-                                              (:getDocumentVersionRequest nil))
-                           :documentFeatures (:documentFormatting
-                                              (:defaultPrintWidth 100
-                                                                  :getDocumentPrintWidthRequest nil)
-                                              :documentSymbol t
-                                              :documentColor t)))))
+;; These are for Emacs 31.
+;; (setq package-review-policy
+;;       (delq nil
+;;             (append
+;;              (mapcar
+;;               (lambda (package)
+;;                 (list 'not 'package package))
+;;               prot-emacs-my-packages)
+;;              (mapcar
+;;               (lambda (archive)
+;;                 (let ((archive-name (car archive)))
+;;                   (unless (string= archive-name "gnu-elpa-devel")
+;;                     (cons 'archive archive-name))))
+;;               package-archives))))
 
-(use-package eglot
-  :ensure t
-  :defer t
-  :bind (:map eglot-mode-map
-              ("C-c <tab>" . company-complete)
-              ("C-c e n" . flymake-goto-next-error)
-              ("C-c e p" . flymake-goto-prev-error)
-              ("C-c e r" . eglot-rename)
-              ("C-c f" . eglot-code-action-quickfix))
-  :hook ((rustic-mode c-mode c++-mode typescript-mode vue-mode zig-mode) . eglot-ensure)
-  :config
-  ;(add-to-list 'project-vc-extra-root-markers "build.gradle")
-  (customize-set-variable 'eglot-autoshutdown t)
-  (add-to-list 'eglot-server-programs
-               `(rustic-mode . ("rust-analyzer" :initializationOptions
-                                ( :procMacro (:enable t)
-                                  :cargo ( :buildScripts (:enable t)
-                                           :features "all")))))
-  (add-to-list 'eglot-server-programs
-               `((c-mode c++-mode) . ("clangd-15")))
-  (add-to-list 'eglot-server-programs
-               `(vue-mode . ("vue-language-server" "--stdio" :initializationOptions ,(vue-eglot-init-options))))
-  (add-to-list 'eglot-server-programs
-               `(zig-mode . ("zls"))))
-(use-package eldoc
-  :ensure)
-(use-package company
-  :ensure t
-  :config
-  (setq company-idle-delay 0.2)
-  (add-hook 'after-init-hook 'global-company-mode))
+;; (setq package-review-diff-command
+;;       (cons diff-command
+;;             '("-u"
+;;               "-x" "'*.elc'"
+;;               "-x" "'*-autoloads.el'"
+;;               "-x" "'*-pkg.el'"
+;;               "-x" "'*.info'"
+;;               "-x" "'*.texi'"
+;;               "-x" "'*.txt'"
+;;               "-x" "'*.md'"
+;;               "-x" "'*.org'")))
 
-(use-package undo-tree
-  :ensure t
-  :bind (:map undo-tree-map
-			  ("C-c u" . 'undo-tree-undo)
-			  ("C-c r" . 'undo-tree-redo)))
+;;; Load modules and macros
 
-(use-package fish-mode
-  :ensure t)
+;; load custom-macros file first as modules require some of them
+(load (expand-file-name "custom-macros.el" user-emacs-directory) nil t)
 
-;;; Rust
-(use-package rustic
-  :ensure t
-  :config
-  (setq rustic-format-on-save t
-        rustic-lsp-client 'eglot)
-  (add-to-list 'project-vc-extra-root-markers "Cargo.toml")
-  :custom
-  (rustic-analyzer-command '("rustup" "run" "stable" "rust-analyzer")))
+;; add custom-modules directory to load path
+(mapc
+ (lambda (string)
+   (add-to-list 'load-path (locate-user-emacs-file string)))
+ '("modules"))
 
-;;; Java
-;;; https://github.com/yveszoundi/eglot-java
-(use-package eglot-java
-  :ensure t
-  :hook (java-mode . eglot-java-mode))
+(require 'my-theme)
+(require 'my-essentials)
+(require 'my-minibuffer)
+(require 'my-completion)
+(require 'my-prog-essentials)
+(require 'my-langs)
 
-;;; Zig
-(use-package zig-mode
-  :ensure t)
+;;; Backup files
+(defconst emacs-tmp-dir (expand-file-name (format "emacs%d" (user-uid)) temporary-file-directory))
+(setq
+   backup-by-copying t ; Avoid symlinks
+   delete-old-versions t
+   kept-new-versions 6
+   kept-old-versions 2
+   version-control t
+   auto-save-list-file-prefix emacs-tmp-dir
+   auto-save-file-name-transforms `((".*" ,emacs-tmp-dir t))  ; Change autosave dir to tmp
+   backup-directory-alist `((".*" . ,emacs-tmp-dir))
+   lock-file-name-transforms `(("\\`/.*/\\([^/]+\\)\\'" "/tmp/\\1" t)))
 
-;;; Docker and yaml
-(use-package dockerfile-mode
-  :ensure t)
+;;; Custom-File
 
-(use-package yaml-mode
-  :ensure t)
+;; Offload the custom-file to a separate file
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 
-
-;;; Web
-(use-package typescript-mode
-  :ensure t
-  :config
-  (add-to-list 'project-vc-extra-root-markers "tsconfig.json"))
-(use-package js2-mode
-  :ensure t)
-
-(use-package vue-mode
-  :ensure t
-  :hook (vue-mode . (lambda ()
-	    (set-face-background 'mmm-default-submode-face nil)))
-  :mode "\\.vue$"
-  :config
-  (add-to-list 'mmm-save-local-variables '(syntax-ppss-table buffer)))
+(load custom-file nil t) ; Do LAST to prevent overwrite
