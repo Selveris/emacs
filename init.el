@@ -63,6 +63,7 @@
 (require 'my-completion)
 (require 'my-prog-essentials)
 (require 'my-langs)
+(require 'my-ai)
 
 ;;; Backup files
 (defconst emacs-tmp-dir (expand-file-name (format "emacs%d" (user-uid)) temporary-file-directory))
