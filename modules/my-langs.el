@@ -30,6 +30,18 @@
 ;; TODO: enable those conditionaly based on a variable in init.el
 
 ;;;; Zig
+(defun my-zig-build ()
+  (interactive)
+  (selv-console-send-command "zig build"))
+
+(defun my-zig-test ()
+  (interactive)
+  (selv-console-send-command "zig build test"))
+
+(defun my-zig-run ()
+  (interactive)
+  (selv-console-send-command "zig build run"))
+
 (prot-emacs-configure
   (prot-emacs-install zig-mode)
 
@@ -37,7 +49,12 @@
   
   (with-eval-after-load 'eglot
     (add-to-list 'eglot-server-programs
-		 `(zig-mode . ("zls")))))
+		         `(zig-mode . ("zls"))))
+
+  (prot-emacs-keybind zig-mode-map
+    "C-c C-b" #'my-zig-build
+    "C-c C-t" #'my-zig-test
+    "C-c C-r" #'my-zig-run))
 
 ;;;; Rust
 ;; Change to rust-mode?

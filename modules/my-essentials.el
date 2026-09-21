@@ -122,7 +122,22 @@
     "r" #'rename-uniquely
     "l" #'visual-line-mode))
 
-;;;; Emacs server (allow emacsclient to connect to running session)
+;;; Shell (comint) and Compile buffer
+(prot-emacs-configure
+  (add-hook 'comint-output-filter-functions #'comint-osc-process-output)
+  (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
+
+  (setq ansi-color-for-comint-mode t) ; shell (comint)
+  (setq ansi-color-for-compilation-mode t) ; compilation
+  (setq comint-prompt-read-only t)
+  (setq comint-buffer-maximum-size 9999)
+  (setq comint-completion-autolist t)
+  (setq comint-input-ignoredups t)
+  (setq-default comint-scroll-to-bottom-on-input t)
+  (setq-default comint-scroll-to-bottom-on-output nil)
+  (setq-default comint-input-autoexpand 'input))
+
+;;; Emacs server (allow emacsclient to connect to running session)
 (prot-emacs-configure
   (setq server-client-instructions nil)
   (require 'server)

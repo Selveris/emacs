@@ -1,3 +1,15 @@
+;;; Console
+(prot-emacs-configure
+  (prot-emacs-install eat)
+  
+  (require 'selv-console)
+
+  (prot-emacs-keybind prog-mode-map
+    "C-c c q" #'selv-console-close
+    "C-c c o" #'selv-console-open
+    "C-c c t" #'selv-console-toggle
+    "C-c c c" #'selv-console-send-command))
+
 ;;; Version Control
 
 (prot-emacs-configure

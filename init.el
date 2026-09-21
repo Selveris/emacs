@@ -55,7 +55,7 @@
 (mapc
  (lambda (string)
    (add-to-list 'load-path (locate-user-emacs-file string)))
- '("modules"))
+ '("modules" "lisp"))
 
 (require 'my-theme)
 (require 'my-essentials)
